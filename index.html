@@ -67,16 +67,16 @@
   }
 
   .subtitle {
-    font-size: 0.95rem;
+    font-size: 1.3rem;
     color: var(--muted);
     letter-spacing: 3px;
     text-transform: uppercase;
   }
 
   .team {
-    margin-top: 10px;
-    font-size: 0.85rem;
-    color: var(--muted);
+    margin-top: 12px;
+    font-size: 1.1rem;
+    color: var(--accent);
   }
 
   /* Status bar */
@@ -449,9 +449,9 @@
     document.getElementById('motionText').textContent = motion === 1 ? '⚠️ Motion Detected!' : 'Area Clear';
     document.getElementById('motionBar').style.width  = motion === 1 ? '100%' : '5%';
 
-    // Light
-    document.getElementById('lightVal').textContent  = light === 0 ? 'DAY' : 'NIGHT';
-    document.getElementById('lightText').textContent = light === 0 ? '☀️ Bright / Day' : '🌙 Dark / Night';
+    // Light (matches Arduino LCD: 0=Bright, 1=Dark)
+    document.getElementById('lightVal').textContent  = light === 0 ? 'BRIGHT' : 'DARK';
+    document.getElementById('lightText').textContent = light === 0 ? '☀️ Day / Bright' : '🌙 Night / Dark';
 
     // Last update time
     const now = new Date();
