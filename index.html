@@ -445,9 +445,13 @@
     document.getElementById('lightBar').style.width  = light === 0 ? '90%' : '20%';
 
     // Motion
-    document.getElementById('motionVal').textContent  = motion;
-    document.getElementById('motionText').textContent = motion === 1 ? '⚠️ Motion Detected!' : 'No Motion';
+    document.getElementById('motionVal').textContent  = motion === 1 ? 'YES' : 'NO';
+    document.getElementById('motionText').textContent = motion === 1 ? '⚠️ Motion Detected!' : 'Area Clear';
     document.getElementById('motionBar').style.width  = motion === 1 ? '100%' : '5%';
+
+    // Light
+    document.getElementById('lightVal').textContent  = light === 0 ? 'DAY' : 'NIGHT';
+    document.getElementById('lightText').textContent = light === 0 ? '☀️ Bright / Day' : '🌙 Dark / Night';
 
     // Last update time
     const now = new Date();
