@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Environmental Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --card: #0f1628;
+    --border: #1e2d4a;
+    --accent: #00d4ff;
+    --accent2: #00ff88;
+    --accent3: #ff6b35;
+    --accent4: #a855f7;
+    --text: #e0e8ff;
+    --muted: #4a6080;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px 20px;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    font-weight: 900;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .team {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  /* Status bar */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+  }
+
+  .status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent2);
+    box-shadow: 0 0 10px var(--accent2);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .status-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    color: var(--accent2);
+    letter-spacing: 2px;
+  }
+
+  .last-update {
+    font-size: 0.8rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* Cards grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--accent));
+  }
+
+  .card-icon {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+  }
+
+  .card-label {
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .card-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    color: var(--card-accent, var(--accent));
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .card-unit {
+    font-size: 0.85rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .card-status {
+    position: absolute;
+    top: 20px; right: 20px;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+
+  /* Card colors */
+  .card-temp { --card-accent: #ff6b35; }
+  .card-temp:hover { border-color: #ff6b35; }
+
+  .card-hum { --card-accent: #00d4ff; }
+  .card-hum:hover { border-color: #00d4ff; }
+
+  .card-light { --card-accent: #ffd700; }
+  .card-light:hover { border-color: #ffd700; }
+
+  .card-motion { --card-accent: #a855f7; }
+  .card-motion:hover { border-color: #a855f7; }
+
+  /* Progress bar */
+  .progress-wrap {
+    margin-top: 14px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: var(--card-accent, var(--accent));
+    border-radius: 4px;
+    transition: width 1s ease;
+    box-shadow: 0 0 8px var(--card-accent, var(--accent));
+  }
+
+  /* Chart section */
+  .chart-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .chart-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .chart-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 600px) {
+    .chart-wrap { grid-template-columns: 1fr; }
+  }
+
+  canvas {
+    width: 100% !important;
+    max-height: 180px;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+  }
+
+  /* Loading */
+  .loading {
+    display: inline-block;
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .alert-badge {
+    background: rgba(255,107,53,0.2);
+    color: #ff6b35;
+    border: 1px solid rgba(255,107,53,0.3);
+  }
+
+  .ok-badge {
+    background: rgba(0,255,136,0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(0,255,136,0.2);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="logo">⚡ SMART ENV MONITOR</div>
+    <div class="subtitle">IoT Cloud Dashboard</div>
+    <div class="team">Sukhpreet Singh Bhalla (2024/461) &nbsp;|&nbsp; Prashant Sharma (2024/440) &nbsp;|&nbsp; Pratham Kumar (2025/478)</div>
+  </header>
+
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    <div class="status-text">LIVE</div>
+    <div class="last-update" id="lastUpdate">Fetching data...</div>
+  </div>
+
+  <div class="grid">
+
+    <div class="card card-temp">
+      <div class="card-status ok-badge" id="tempStatus">NORMAL</div>
+      <div class="card-icon">🌡️</div>
+      <div class="card-label">Temperature</div>
+      <div class="card-value" id="tempVal">--</div>
+      <div class="card-unit">degrees Celsius</div>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="tempBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="card card-hum">
+      <div class="card-status ok-badge" id="humStatus">NORMAL</div>
+      <div class="card-icon">💧</div>
+      <div class="card-label">Humidity</div>
+      <div class="card-value" id="humVal">--</div>
+      <div class="card-unit">percent RH</div>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="humBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="card card-light">
+      <div class="card-icon">💡</div>
+      <div class="card-label">Light Level</div>
+      <div class="card-value" id="lightVal">--</div>
+      <div class="card-unit" id="lightText">detecting...</div>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="lightBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="card card-motion">
+      <div class="card-icon">🚶</div>
+      <div class="card-label">Motion</div>
+      <div class="card-value" id="motionVal">--</div>
+      <div class="card-unit" id="motionText">detecting...</div>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="motionBar" style="width:0%"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-section">
+    <div class="chart-title">📈 Historical Data — Last 10 Readings</div>
+    <div class="chart-wrap">
+      <canvas id="tempChart"></canvas>
+      <canvas id="humChart"></canvas>
+    </div>
+  </div>
+
+  <footer>
+    THAPAR POLYTECHNIC COLLEGE &nbsp;|&nbsp; SMART ENVIRONMENTAL MONITORING SYSTEM &nbsp;|&nbsp; 2024-25
+  </footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+  const CHANNEL_ID = '3326975';
+  const READ_KEY   = '1K3H6EMH88LZ39Q0';
+  const API_URL    = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?api_key=${READ_KEY}&results=10`;
+
+  // Chart setup
+  const chartConfig = (label, color, labels, data) => ({
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data,
+        borderColor: color,
+        backgroundColor: color + '22',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointBackgroundColor: color,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#4a6080', font: { size: 10 } }, grid: { color: '#1e2d4a' } },
+        y: { ticks: { color: '#4a6080', font: { size: 10 } }, grid: { color: '#1e2d4a' } }
+      }
+    }
+  });
+
+  let tempChart, humChart;
+
+  function initCharts() {
+    tempChart = new Chart(document.getElementById('tempChart'), chartConfig('Temperature °C', '#ff6b35', [], []));
+    humChart  = new Chart(document.getElementById('humChart'),  chartConfig('Humidity %',     '#00d4ff', [], []));
+  }
+
+  function updateCharts(feeds) {
+    const labels = feeds.map(f => {
+      const d = new Date(f.created_at);
+      return d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
+    });
+    const temps = feeds.map(f => parseFloat(f.field1) || 0);
+    const hums  = feeds.map(f => parseFloat(f.field2) || 0);
+
+    tempChart.data.labels = labels;
+    tempChart.data.datasets[0].data = temps;
+    tempChart.update();
+
+    humChart.data.labels = labels;
+    humChart.data.datasets[0].data = hums;
+    humChart.update();
+  }
+
+  function updateCards(feed) {
+    const temp   = parseFloat(feed.field1) || 0;
+    const hum    = parseFloat(feed.field2) || 0;
+    const light  = parseInt(feed.field3)   || 0;
+    const motion = parseInt(feed.field4)   || 0;
+
+    // Temperature
+    document.getElementById('tempVal').textContent  = temp.toFixed(1);
+    document.getElementById('tempBar').style.width  = Math.min((temp / 50) * 100, 100) + '%';
+    const tempStat = document.getElementById('tempStatus');
+    if (temp > 35) { tempStat.textContent = 'HIGH!'; tempStat.className = 'card-status alert-badge'; }
+    else if (temp < 15) { tempStat.textContent = 'LOW!'; tempStat.className = 'card-status alert-badge'; }
+    else { tempStat.textContent = 'NORMAL'; tempStat.className = 'card-status ok-badge'; }
+
+    // Humidity
+    document.getElementById('humVal').textContent  = hum.toFixed(1);
+    document.getElementById('humBar').style.width  = Math.min(hum, 100) + '%';
+    const humStat = document.getElementById('humStatus');
+    if (hum > 80) { humStat.textContent = 'HIGH!'; humStat.className = 'card-status alert-badge'; }
+    else { humStat.textContent = 'NORMAL'; humStat.className = 'card-status ok-badge'; }
+
+    // Light
+    document.getElementById('lightVal').textContent  = light;
+    document.getElementById('lightText').textContent = light === 0 ? 'Bright / Day' : 'Dark / Night';
+    document.getElementById('lightBar').style.width  = light === 0 ? '90%' : '20%';
+
+    // Motion
+    document.getElementById('motionVal').textContent  = motion;
+    document.getElementById('motionText').textContent = motion === 1 ? '⚠️ Motion Detected!' : 'No Motion';
+    document.getElementById('motionBar').style.width  = motion === 1 ? '100%' : '5%';
+
+    // Last update time
+    const now = new Date();
+    document.getElementById('lastUpdate').textContent =
+      'Last updated: ' + now.toLocaleTimeString();
+  }
+
+  async function fetchData() {
+    try {
+      const res  = await fetch(API_URL);
+      const json = await res.json();
+      const feeds = json.feeds;
+      if (feeds && feeds.length > 0) {
+        updateCards(feeds[feeds.length - 1]);
+        updateCharts(feeds);
+      }
+    } catch (e) {
+      console.error('Fetch error:', e);
+    }
+  }
+
+  // Init
+  initCharts();
+  fetchData();
+  setInterval(fetchData, 16000); // Auto refresh every 16s
+</script>
+</body>
+</html>
